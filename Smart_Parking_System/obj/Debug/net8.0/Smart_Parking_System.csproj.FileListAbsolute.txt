@@ -1,0 +1,12 @@
+D:\workspace\github\prn_repo\Smart_Parking_System\bin\Debug\net8.0\Smart_Parking_System.deps.json
+D:\workspace\github\prn_repo\Smart_Parking_System\bin\Debug\net8.0\Smart_Parking_System.dll
+D:\workspace\github\prn_repo\Smart_Parking_System\bin\Debug\net8.0\Smart_Parking_System.pdb
+D:\workspace\github\prn_repo\Smart_Parking_System\obj\Debug\net8.0\Smart_Parking_System.GeneratedMSBuildEditorConfig.editorconfig
+D:\workspace\github\prn_repo\Smart_Parking_System\obj\Debug\net8.0\Smart_Parking_System.AssemblyInfoInputs.cache
+D:\workspace\github\prn_repo\Smart_Parking_System\obj\Debug\net8.0\Smart_Parking_System.AssemblyInfo.cs
+D:\workspace\github\prn_repo\Smart_Parking_System\obj\Debug\net8.0\Smart_Parking_System.csproj.CoreCompileInputs.cache
+D:\workspace\github\prn_repo\Smart_Parking_System\obj\Debug\net8.0\Smart_Parking_System.sourcelink.json
+D:\workspace\github\prn_repo\Smart_Parking_System\obj\Debug\net8.0\Smart_Parking_System.dll
+D:\workspace\github\prn_repo\Smart_Parking_System\obj\Debug\net8.0\refint\Smart_Parking_System.dll
+D:\workspace\github\prn_repo\Smart_Parking_System\obj\Debug\net8.0\Smart_Parking_System.pdb
+D:\workspace\github\prn_repo\Smart_Parking_System\obj\Debug\net8.0\ref\Smart_Parking_System.dll
