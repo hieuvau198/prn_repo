@@ -1,0 +1,22 @@
+﻿<Window x:Class="ChatClientWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Chat Client" Height="600" Width="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ScrollViewer wrapping the StackPanel -->
+        <ScrollViewer Name="ChatScrollViewer" VerticalScrollBarVisibility="Auto" Grid.Row="0">
+            <StackPanel Name="ChatStackPanel" />
+        </ScrollViewer>
+
+        <!-- Input and Send Button -->
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="5">
+            <TextBox Name="MessageTextBox" Width="300" Margin="0,0,5,0" />
+            <Button Name="SendButton" Content="Send" Width="75" Click="SendButton_Click" />
+        </StackPanel>
+    </Grid>
+</Window>
