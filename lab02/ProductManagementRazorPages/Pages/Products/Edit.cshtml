@@ -41,10 +41,20 @@
     </div>
 </div>
 
+<!-- Add a big text box for the log message -->
+<div class="row mt-3">
+    <div class="col-md-6">
+        <h5>Action Log</h5>
+        <textarea asp-for="LogMessage" class="form-control" rows="5" readonly></textarea>
+    </div>
+</div>
+
 <div>
     <a asp-page="./Index">Back to List</a>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
