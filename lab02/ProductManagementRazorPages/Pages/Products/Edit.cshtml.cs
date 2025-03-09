@@ -47,6 +47,9 @@ namespace ProductManagementRazorPages.Pages.Products
                 return Page();
             }
 
+            Category category = await _categoryService.GetByIdAsync(Product.CategoryId);
+            Product.Category = category;
+
             await _productService.UpdateAsync(Product);
             return RedirectToPage("./Index");
         }
