@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using PRN222.ProductStore.Repository.Models;
-using PRN222.ProductStore.Service.BussinessModels;
-using PRN222.ProductStore.Service.Services;
-using PRN222.ProductStore.Service.Services.Interfaces;
+using PRN222.ProductStore.Service.DTOs;
+using PRN222.ProductStore.Service.Interfaces;
+using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace PRN222.ProductStore.Web.Controllers
 {
@@ -16,162 +13,148 @@ namespace PRN222.ProductStore.Web.Controllers
     {
         private readonly IProductService _productService;
         private readonly ICategoryService _categoryService;
+        private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(IProductService productService, ICategoryService categoryService)
+        public ProductsController(IProductService productService, ICategoryService categoryService, ILogger<ProductsController> logger)
         {
             _productService = productService;
             _categoryService = categoryService;
+            _logger = logger;
         }
 
-        // GET: Products
         public async Task<IActionResult> Index()
         {
-            string userId = HttpContext.Session.GetString("UserId");
-            string username = HttpContext.Session.GetString("Username");
-
-            if (HttpContext.Session.GetString("UserId") == null)
+            try
             {
-                // Redirect to the login page or display an error message
-                return RedirectToAction("Login", "Account");
+                return View(await _productService.GetProductsAsync());
             }
-
-            var productStoreContext = await _productService.GetProducts();
-            return View(productStoreContext);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading products.");
+                TempData["Message"] = "Something went wrong.";
+                return RedirectToAction("Index");
+            }
         }
 
-        // GET: Products/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
+                var product = await _productService.GetProductByIdAsync(id);
+                return product != null ? View(product) : NotFound();
             }
-
-            var product = await _productService.GetProductById((int)id);
-            if (product == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogError(ex, "Error retrieving product details.");
+                return RedirectToAction("Index");
             }
-
-            return View(product);
         }
 
-        // GET: Products/Create
         public async Task<IActionResult> Create()
         {
-            ViewData["CategoryId"] = new SelectList(await _categoryService.GetCategories(), "CategoryId", "CategoryName");
+            ViewData["CategoryId"] = new SelectList(await _categoryService.GetCategoriesAsync(), "CategoryId", "CategoryName");
             return View();
         }
 
-        // POST: Products/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductName,CategoryId,UnitsInStock,UnitPrice")] ProductModel product)
+        public async Task<IActionResult> Create(CreateProductDto productDto)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(productDto);
+
+            try
             {
-                await _productService.SaveProduct(product);
+                await _productService.AddProductAsync(productDto);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(await _categoryService.GetCategories(), "CategoryId", "CategoryName", product.CategoryId);
-            return View(product);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating product.");
+                TempData["Message"] = "Something went wrong.";
+                return View(productDto);
+            }
         }
 
-        // GET: Products/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
-            }
+                var product = await _productService.GetProductByIdAsync(id);
+                if (product == null) return NotFound();
 
-            var product = await _productService.GetProductById((int)id);
-            if (product == null)
-            {
-                return NotFound();
+                ViewData["CategoryId"] = new SelectList(await _categoryService.GetCategoriesAsync(), "CategoryId", "CategoryName", product.CategoryId);
+                return View(new UpdateProductDto
+                {
+                    ProductId = product.ProductId,
+                    ProductName = product.ProductName,
+                    CategoryId = product.CategoryId,
+                    UnitsInStock = product.UnitsInStock,
+                    UnitPrice = product.UnitPrice
+                });
             }
-            ViewData["CategoryId"] = new SelectList(await _categoryService.GetCategories(), "CategoryId", "CategoryId", product.CategoryId);
-            return View(product);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving product for editing.");
+                return RedirectToAction("Index");
+            }
         }
 
-        // POST: Products/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductId,ProductName,CategoryId,UnitsInStock,UnitPrice")] ProductModel product)
+        public async Task<IActionResult> Edit(int id, UpdateProductDto productDto)
         {
-            if (id != product.ProductId)
-            {
-                return NotFound();
-            }
+            if (id != productDto.ProductId) return NotFound();
+            if (!ModelState.IsValid) return View(productDto);
 
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    await _productService.UpdateProduct(product);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (await ProductExists(product.ProductId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _productService.UpdateProductAsync(productDto);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(await _categoryService.GetCategories(), "CategoryId", "CategoryName", product.CategoryId);
-            return View(product);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating product.");
+                TempData["Message"] = "Something went wrong.";
+                return View(productDto);
+            }
         }
 
-        // GET: Products/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
+                var product = await _productService.GetProductByIdAsync(id);
+                return product != null ? View(product) : NotFound();
             }
-
-            var product = await _productService.GetProductById((int)id);
-            if (product == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                _logger.LogError(ex, "Error retrieving product for deletion.");
+                return RedirectToAction("Index");
             }
-
-            return View(product);
         }
 
-        // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
-            }
+                var userRole = HttpContext.Session.GetString("UserRole");
 
-            var product = await _productService.GetProductById((int)id);
-            if (product == null)
+                if (userRole != "2")
+                {
+                    TempData["Message"] = "You are not authorized to delete products.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                await _productService.DeleteProductAsync(id);
+            }
+            catch (Exception ex)
             {
-                return NotFound();
+                TempData["Message"] = "Something went wrong.";
             }
-            await _productService.DeleteProduct(product);
-
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task<bool> ProductExists(int id)
-        {
-            var tmp = await _productService.GetProductById(id);
-            return tmp == null;
-        }
     }
 }

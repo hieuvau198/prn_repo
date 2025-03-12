@@ -7,13 +7,23 @@ using System.Threading.Tasks;
 
 namespace PRN222.ProductStore.Repository.Repositories.Interfaces
 {
-    public interface IGenericRepository<TEntity> where TEntity : class
+    public interface IGenericRepository<T> where T : class
     {
-        Task<List<TEntity>> GetAllAsync();
-        Task<TEntity> GetByIdAsync(object id);
-        Task<List<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate);
-        Task AddAsync(TEntity entity);
-        Task UpdateAsync(TEntity entity);
+        Task<IEnumerable<T>> GetAsync(
+            Expression<Func<T, bool>> predicate = null,
+            params Expression<Func<T, object>>[] includes);
+
+        Task<T> GetByIdAsync(object id, params Expression<Func<T, object>>[] includes);
+
+        Task<IEnumerable<T>> FindAsync(
+            Expression<Func<T, bool>> predicate,
+            params Expression<Func<T, object>>[] includes);
+
+        Task AddAsync(T entity);
+
+        Task UpdateAsync(T entity);
+
         Task DeleteAsync(object id);
     }
+
 }

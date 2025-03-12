@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using PRN222.ProductStore.Repository.Models;
 using PRN222.ProductStore.Repository.Repositories;
 using PRN222.ProductStore.Repository.Repositories.Interfaces;
-using PRN222.ProductStore.Service.Mappers;
+using PRN222.ProductStore.Service.Interfaces;
+using PRN222.ProductStore.Service.Mappings;
 using PRN222.ProductStore.Service.Services;
-using PRN222.ProductStore.Service.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,11 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<ProductStoreContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ProductStore")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<IAccountMemberRepository, AccountMemberRepository>();
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
@@ -29,7 +27,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddAutoMapper(typeof(Mapper).Assembly);
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 
 var app = builder.Build();

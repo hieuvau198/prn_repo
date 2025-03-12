@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using PRN222.ProductStore.Repository.Models;
-using PRN222.ProductStore.Service.Services;
-using PRN222.ProductStore.Service.Services.Interfaces;
+using PRN222.ProductStore.Service.DTOs;
+using PRN222.ProductStore.Service.Interfaces;
 
 namespace PRN222.ProductStore.Web.Controllers
 {
@@ -27,17 +26,18 @@ namespace PRN222.ProductStore.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(AccountMember model)
+        public async Task<IActionResult> Login(LoginRequestDto model)
         {
             if (ModelState.IsValid)
             {
-                var user = await _accountMemberService.GetAccountByEmail(model.EmailAddress, model.MemberPassword);
+                var user = await _accountMemberService.LoginAsync(model);
 
-                if (user != null && user.MemberPassword == model.MemberPassword)
+                if (user != null)
                 {
                     // Store user information in session
                     HttpContext.Session.SetString("UserId", user.MemberId);
                     HttpContext.Session.SetString("Username", user.FullName);
+                    HttpContext.Session.SetString("UserRole", user.MemberRole.ToString());
 
                     return RedirectToAction("Index", "Products"); // Redirect to home page
                 }
@@ -45,6 +45,24 @@ namespace PRN222.ProductStore.Web.Controllers
                 {
                     ModelState.AddModelError("", "Invalid username or password.");
                 }
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterAccountDto model)
+        {
+            if (ModelState.IsValid)
+            {
+                await _accountMemberService.RegisterAccountAsync(model);
+                return RedirectToAction("Login");
             }
 
             return View(model);

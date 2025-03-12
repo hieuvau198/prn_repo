@@ -10,53 +10,102 @@ using System.Threading.Tasks;
 
 namespace PRN222.ProductStore.Repository.Repositories
 {
-    public class GenericRepository<TEntity>: IGenericRepository<TEntity> where TEntity : class
+    public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         private readonly ProductStoreContext _context;
-        private readonly DbSet<TEntity> _dbSet;
+        private readonly DbSet<T> _dbSet;
 
         public GenericRepository(ProductStoreContext context)
         {
             _context = context;
-            _dbSet = context.Set<TEntity>();
+            _dbSet = context.Set<T>();
         }
 
-        // Lấy tất cả dữ liệu
-        public async Task<List<TEntity>> GetAllAsync()
+        public async Task<IEnumerable<T>> GetAsync(
+            Expression<Func<T, bool>> predicate = null,
+            params Expression<Func<T, object>>[] includes)
         {
-            return await _dbSet.ToListAsync();
+            IQueryable<T> query = _dbSet;
+
+            // Apply Includes if provided
+            if (includes != null && includes.Length > 0)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+
+            // Apply Predicate if provided
+            if (predicate != null)
+            {
+                query = query.Where(predicate);
+            }
+
+            return await query.ToListAsync();
         }
 
-        // Lấy theo ID
-        public async Task<TEntity> GetByIdAsync(object id)
+        public async Task<T> GetByIdAsync(object id, params Expression<Func<T, object>>[] includes)
         {
-            return await _dbSet.FindAsync(id);
+            IQueryable<T> query = _dbSet;
+
+            // Apply Includes if provided
+            if (includes != null && includes.Length > 0)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+
+            // Get the key name dynamically instead of assuming "Id"
+            var keyProperty = _context.Model.FindEntityType(typeof(T))
+                                           .FindPrimaryKey()
+                                           .Properties
+                                           .FirstOrDefault()?.Name;
+
+            if (keyProperty == null)
+            {
+                throw new InvalidOperationException("Entity has no primary key defined.");
+            }
+
+            return await query.FirstOrDefaultAsync(e => EF.Property<object>(e, keyProperty).Equals(id));
         }
 
-        // Tìm theo điều kiện
-        public async Task<List<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate)
+
+        public async Task<IEnumerable<T>> FindAsync(
+            Expression<Func<T, bool>> predicate,
+            params Expression<Func<T, object>>[] includes)
         {
-            return await _dbSet.Where(predicate).ToListAsync();
+            IQueryable<T> query = _dbSet.Where(predicate);
+
+            // Apply Includes if provided
+            if (includes != null && includes.Length > 0)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+
+            return await query.ToListAsync();
         }
 
-        // Thêm dữ liệu
-        public async Task AddAsync(TEntity entity)
+        public async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
             await _context.SaveChangesAsync();
         }
 
-        // Cập nhật dữ liệu
-        public async Task UpdateAsync(TEntity entity)
+        public async Task UpdateAsync(T entity)
         {
             _dbSet.Update(entity);
             await _context.SaveChangesAsync();
         }
 
-        // Xóa dữ liệu
         public async Task DeleteAsync(object id)
         {
-            var entity = await _dbSet.FindAsync(id);
+            var entity = await GetByIdAsync(id);
             if (entity != null)
             {
                 _dbSet.Remove(entity);
