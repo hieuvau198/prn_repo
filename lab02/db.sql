@@ -72,3 +72,54 @@ INSERT INTO Products (ProductName, CategoryID, UnitsInStock, UnitPrice) VALUES
 ('Basketball', 5, 90, 29.99),
 ('Tennis Racket', 5, 40, 89.99);
 GO
+
+
+
+
+
+
+
+
+-- Delete existing data before inserting new seed data
+DELETE FROM Products;
+DELETE FROM Categories;
+DELETE FROM AccountMember;
+GO
+
+-- Reset identity columns (if applicable, for auto-incrementing primary keys)
+DBCC CHECKIDENT ('Products', RESEED, 0);
+DBCC CHECKIDENT ('Categories', RESEED, 0);
+DBCC CHECKIDENT ('AccountMember', RESEED, 0);
+GO
+
+-- Insert new sample data into AccountMember
+INSERT INTO AccountMember (MemberID, MemberPassword, FullName, EmailAddress, MemberRole) VALUES
+('U006', 'newhashedpass001', 'Sophia Martinez', 'sophia@example.com', 1),
+('U007', 'newhashedpass002', 'Liam Thompson', 'liam@example.com', 2),
+('U008', 'newhashedpass003', 'Olivia Walker', 'olivia@example.com', 2),
+('U009', 'newhashedpass004', 'Noah White', 'noah@example.com', 1),
+('U010', 'newhashedpass005', 'Emma Harris', 'emma@example.com', 3);
+GO
+
+-- Insert new sample data into Categories
+INSERT INTO Categories (CategoryName) VALUES
+('Furniture'),
+('Beauty & Health'),
+('Toys'),
+('Kitchenware'),
+('Automotive');
+GO
+
+-- Insert new sample data into Products (Ensure valid CategoryID references)
+INSERT INTO Products (ProductName, CategoryID, UnitsInStock, UnitPrice) VALUES
+('Wooden Dining Table', 1, 15, 799.99),
+('Office Chair', 1, 25, 149.99),
+('Face Serum', 2, 100, 39.99),
+('Herbal Shampoo', 2, 80, 24.99),
+('Building Blocks Set', 3, 120, 34.99),
+('Remote Control Car', 3, 60, 59.99),
+('Non-Stick Frying Pan', 4, 90, 27.99),
+('Chef’s Knife Set', 4, 70, 89.99),
+('Car Vacuum Cleaner', 5, 40, 69.99),
+('Dashboard Camera', 5, 35, 129.99);
+GO
