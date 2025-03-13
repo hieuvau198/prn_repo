@@ -1,0 +1,48 @@
+﻿@page
+@model PRN222.Lab2.ProductStore.Web.Pages.Account.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.AccountMembers[0].FullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AccountMembers[0].EmailAddress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AccountMembers[0].MemberPassword)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.AccountMembers) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.FullName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EmailAddress)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MemberPassword)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.MemberId">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.MemberId">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.MemberId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
