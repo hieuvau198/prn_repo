@@ -1,5 +1,5 @@
-﻿using BusinessObjects;
-using Repositories;
+﻿using Repositories;
+using Repositories.Entities;
 using System.Linq;
 using System.Threading.Tasks;
 

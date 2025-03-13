@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using BusinessObjects;
 using Services;
+using Repositories.Entities;
 
 namespace ProductManagementRazorPages.Pages.Products
 {

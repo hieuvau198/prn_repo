@@ -1,4 +1,4 @@
-﻿using BusinessObjects;
+﻿using Repositories.Entities;
 using System.Threading.Tasks;
 
 namespace Services

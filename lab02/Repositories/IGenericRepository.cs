@@ -15,7 +15,6 @@ namespace Repositories
             int pageIndex = 1,
             int pageSize = 10
         );
-
         Task<T> GetByIdAsync(object id);
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);

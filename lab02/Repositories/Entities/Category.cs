@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BusinessObjects;
+namespace Repositories.Entities;
 
 public partial class Category
 {

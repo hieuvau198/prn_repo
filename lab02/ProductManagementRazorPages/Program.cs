@@ -1,7 +1,7 @@
-using BusinessObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Repositories;
+using Repositories.Entities;
 using Services;
 using System.Configuration;
 
@@ -13,6 +13,7 @@ builder.Services.AddDbContext<MyStoreContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+// builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 
 
