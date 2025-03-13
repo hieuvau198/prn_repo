@@ -1,0 +1,18 @@
+﻿@page
+@model PRN222.Lab2.ProductStore.Web.Pages.Auth.LoginModel
+<h2>Login</h2>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <p style="color:red;">@Model.ErrorMessage</p>
+}
+
+<form method="post">
+    <label>Email:</label>
+    <input type="text" asp-for="Email" required />
+
+    <label>Password:</label>
+    <input type="password" asp-for="Password" required />
+
+    <button type="submit">Login</button>
+</form>
