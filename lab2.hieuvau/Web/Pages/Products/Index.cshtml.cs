@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Services.BusinessModels;
 using Services.Interfaces;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Web.Pages.Products
 {

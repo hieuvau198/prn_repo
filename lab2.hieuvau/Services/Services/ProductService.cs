@@ -1,6 +1,8 @@
-﻿using Repositories.Entities;
+﻿using Microsoft.AspNetCore.SignalR;
+using Repositories.Entities;
 using Repositories.Interfaces;
 using Services.BusinessModels;
+using Services.Hubs;
 using Services.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +13,12 @@ namespace Services.Services
     public class ProductService : IProductService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IHubContext<ProductHub> _productHub; // Inject SignalR Hub
 
-        public ProductService(IUnitOfWork unitOfWork)
+        public ProductService(IUnitOfWork unitOfWork, IHubContext<ProductHub> productHub)
         {
             _unitOfWork = unitOfWork;
+            _productHub = productHub;
         }
 
         public async Task<ProductModel?> GetByIdAsync(int productId)
@@ -40,6 +44,9 @@ namespace Services.Services
             var product = MapToEntity(model);
             await _unitOfWork.Products.AddAsync(product);
             await _unitOfWork.SaveChangesAsync();
+
+            // 🔔 Notify clients that a new product was added
+            await _productHub.Clients.All.SendAsync("ReceiveProductUpdate");
         }
 
         public async Task UpdateAsync(ProductModel model)
@@ -54,12 +61,18 @@ namespace Services.Services
 
             await _unitOfWork.Products.UpdateAsync(product);
             await _unitOfWork.SaveChangesAsync();
+
+            // 🔔 Notify clients that a product was updated
+            await _productHub.Clients.All.SendAsync("ReceiveProductUpdate");
         }
 
         public async Task DeleteAsync(int productId)
         {
             await _unitOfWork.Products.DeleteAsync(productId);
             await _unitOfWork.SaveChangesAsync();
+
+            // 🔔 Notify clients that a product was deleted
+            await _productHub.Clients.All.SendAsync("ReceiveProductUpdate");
         }
 
         private static ProductModel MapToModel(Product entity)
