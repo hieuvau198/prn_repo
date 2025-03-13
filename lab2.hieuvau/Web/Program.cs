@@ -4,6 +4,7 @@ using Repositories.Interfaces;
 using Repositories.UnitOfWorks;
 using Services.Interfaces;
 using Services.Services;
+using Web.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +30,15 @@ builder.Services.AddSession(
     }
 );
 
+builder.Services.AddSignalR();
+
 var app = builder.Build();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapRazorPages();
+    endpoints.MapHub<ProductHub>("/productHub"); // Register Hub
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
