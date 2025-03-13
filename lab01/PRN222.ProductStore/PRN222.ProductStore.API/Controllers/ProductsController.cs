@@ -144,7 +144,11 @@ namespace PRN222.ProductStore.Web.Controllers
                 if (userRole != "2")
                 {
                     TempData["Message"] = "You are not authorized to delete products.";
-                    return RedirectToAction(nameof(Index));
+
+                    var product = await _productService.GetProductByIdAsync(id);
+                    if (product == null) return NotFound();
+
+                    return View("Delete", product); // Stay on the Delete page
                 }
 
                 await _productService.DeleteProductAsync(id);

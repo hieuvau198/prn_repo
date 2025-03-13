@@ -15,6 +15,13 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
+        var userId = HttpContext.Session.GetString("UserId");
+
+        if (userId == null)
+        {
+            return NotFound();
+        }
+        
         return View();
     }
 
