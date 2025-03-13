@@ -1,12 +1,12 @@
-﻿using BLL.BusinessModels;
-using BLL.Interfaces;
-using DAL.Entities;
-using DAL.Interfaces;
+﻿using Repositories.Entities;
+using Repositories.Interfaces;
+using Services.BusinessModels;
+using Services.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BLL.Services
+namespace Services.Services
 {
     public class ProductService : IProductService
     {

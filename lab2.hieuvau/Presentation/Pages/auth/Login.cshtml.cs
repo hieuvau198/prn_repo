@@ -1,10 +1,10 @@
-using BLL.BusinessModels;
-using BLL.Interfaces;
-using DAL.Entities;
+using Repositories.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Services.BusinessModels;
+using Services.Interfaces;
 
-namespace Presentation.Pages.auth
+namespace Web.Pages.auth
 {
     public class LoginModel : PageModel
     {

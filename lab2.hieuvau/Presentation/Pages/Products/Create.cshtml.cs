@@ -1,10 +1,10 @@
-using BLL.BusinessModels;
-using BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Services.BusinessModels;
+using Services.Interfaces;
 
-namespace Presentation.Pages.Products
+namespace Web.Pages.Products
 {
     public class CreateModel : PageModel
     {

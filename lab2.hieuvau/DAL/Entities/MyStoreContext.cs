@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace DAL.Entities;
+namespace Repositories.Entities;
 
 public partial class MyStoreContext : DbContext
 {
@@ -21,7 +21,7 @@ public partial class MyStoreContext : DbContext
 
     public virtual DbSet<Product> Products { get; set; }
 
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<AccountMember>(entity =>

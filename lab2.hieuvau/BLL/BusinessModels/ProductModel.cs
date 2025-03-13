@@ -1,4 +1,4 @@
-﻿namespace BLL.BusinessModels
+﻿namespace Services.BusinessModels
 {
     public class ProductModel
     {

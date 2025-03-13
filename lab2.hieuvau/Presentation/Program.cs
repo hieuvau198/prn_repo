@@ -1,9 +1,9 @@
-using BLL.Interfaces;
-using BLL.Services;
-using DAL.Entities;
-using DAL.Interfaces;
-using DAL.UnitOfWorks;
 using Microsoft.EntityFrameworkCore;
+using Repositories.Entities;
+using Repositories.Interfaces;
+using Repositories.UnitOfWorks;
+using Services.Interfaces;
+using Services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

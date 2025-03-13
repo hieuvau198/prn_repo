@@ -1,11 +1,11 @@
-﻿using BLL.BusinessModels;
+﻿using Services.BusinessModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BLL.Interfaces
+namespace Services.Interfaces
 {
     public interface ICategoryService
     {

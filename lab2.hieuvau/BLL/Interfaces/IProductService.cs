@@ -1,8 +1,8 @@
-﻿using BLL.BusinessModels;
+﻿using Services.BusinessModels;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace BLL.Interfaces
+namespace Services.Interfaces
 {
     public interface IProductService
     {

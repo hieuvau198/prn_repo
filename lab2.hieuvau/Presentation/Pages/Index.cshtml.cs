@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Presentation.Pages
+namespace Web.Pages
 {
     public class IndexModel : PageModel
     {
@@ -16,7 +16,7 @@ namespace Presentation.Pages
         public async Task<IActionResult> OnGetAsync()
         {
             string memberId = HttpContext.Session.GetString("MemberId");
-            if(string.IsNullOrEmpty(memberId) )
+            if (string.IsNullOrEmpty(memberId))
             {
                 return RedirectToPage("/auth/login");
             }

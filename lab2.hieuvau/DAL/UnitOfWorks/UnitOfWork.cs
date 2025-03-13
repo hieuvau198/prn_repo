@@ -1,13 +1,13 @@
-﻿using DAL.Entities;
-using DAL.Interfaces;
-using DAL.Repositories;
+﻿using Repositories.Repositories;
+using Repositories.Entities;
+using Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAL.UnitOfWorks
+namespace Repositories.UnitOfWorks
 {
     public class UnitOfWork : IUnitOfWork
     {
