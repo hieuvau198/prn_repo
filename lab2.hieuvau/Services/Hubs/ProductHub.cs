@@ -7,6 +7,7 @@ namespace Services.Hubs
         public async Task NotifyProductUpdate()
         {
             await Clients.All.SendAsync("ReceiveProductUpdate");
+            await Clients.All.SendAsync("ReceiveNotication");
         }
     }
 }

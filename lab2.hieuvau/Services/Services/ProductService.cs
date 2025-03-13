@@ -46,7 +46,9 @@ namespace Services.Services
             await _unitOfWork.SaveChangesAsync();
 
             // 🔔 Notify clients that a new product was added
-            await _productHub.Clients.All.SendAsync("ReceiveProductUpdate");
+            //await _productHub.Clients.All.SendAsync("ReceiveProductUpdate");
+            await _productHub.Clients.All.SendAsync("ReceiveProductUpdate", $"{model.ProductName} was added!");
+            await _productHub.Clients.All.SendAsync("ReceiveNotication", $"{model.ProductName} was added!");
         }
 
         public async Task UpdateAsync(ProductModel model)
@@ -63,16 +65,26 @@ namespace Services.Services
             await _unitOfWork.SaveChangesAsync();
 
             // 🔔 Notify clients that a product was updated
-            await _productHub.Clients.All.SendAsync("ReceiveProductUpdate");
+            //await _productHub.Clients.All.SendAsync("ReceiveProductUpdate");
+            await _productHub.Clients.All.SendAsync("ReceiveProductUpdate", $"{model.ProductName} was updated!");
+            await _productHub.Clients.All.SendAsync("ReceiveNotication", $"{model.ProductName} was updated!");
+
         }
 
         public async Task DeleteAsync(int productId)
         {
+            var product = await _unitOfWork.Products.GetByIdAsync(productId);
+            if (product == null) return;
+
             await _unitOfWork.Products.DeleteAsync(productId);
             await _unitOfWork.SaveChangesAsync();
 
+
             // 🔔 Notify clients that a product was deleted
-            await _productHub.Clients.All.SendAsync("ReceiveProductUpdate");
+            //await _productHub.Clients.All.SendAsync("ReceiveProductUpdate");
+            await _productHub.Clients.All.SendAsync("ReceiveProductUpdate", $"{product.ProductName} was deleted!");
+            await _productHub.Clients.All.SendAsync("ReceiveNotication", $"{product.ProductName} was deleted!");
+
         }
 
         private static ProductModel MapToModel(Product entity)

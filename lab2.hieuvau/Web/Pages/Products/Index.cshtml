@@ -38,18 +38,48 @@
 </table>
 
 
-<!-- ✅ Add SignalR script -->
+<!-- ✅ Add Bootstrap Toast Notification -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="productToast" class="toast bg-success text-white" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Product Update</strong>
+            <small>Just now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            A product has been updated successfully!
+        </div>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 <script>
     const connection = new signalR.HubConnectionBuilder()
-        .withUrl("/productHub") // ✅ Connect to the SignalR Hub
+        .withUrl("/productHub")
         .build();
 
-    // Start the connection
     connection.start().then(() => console.log("Connected to ProductHub!")).catch(err => console.error(err));
 
-    // Reload the page when product data changes
-    connection.on("ReceiveProductUpdate", function () {
-        location.reload(); // ✅ Automatically reloads page when products update
+    connection.on("ReceiveProductUpdate", function (message) {
+        // ✅ Show toast notification
+        let toastBody = document.querySelector("#productToast .toast-body");
+        toastBody.textContent = message;
+        let toast = new bootstrap.Toast(document.getElementById('productToast'));
+        toast.show();
+
+        // ✅ Refresh only the product list
+        refreshProductTable();
     });
+
+    function refreshProductTable() {
+        fetch(window.location.href) // Fetch the current page content
+            .then(response => response.text())
+            .then(html => {
+                let parser = new DOMParser();
+                let doc = parser.parseFromString(html, "text/html");
+                let newTableBody = doc.querySelector("table tbody").innerHTML;
+                document.querySelector("table tbody").innerHTML = newTableBody;
+            })
+            .catch(error => console.error("Error updating table:", error));
+    }
 </script>
