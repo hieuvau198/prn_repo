@@ -1,0 +1,84 @@
+﻿@page
+@model Web.Pages.Products.IndexModel
+@{
+    ViewData["Title"] = "Products List";
+}
+
+<h2>Products</h2>
+
+<a asp-page="Create" class="btn btn-primary mb-3">Create New Product</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Product Name</th>
+            <th>Category</th>
+            <th>Units In Stock</th>
+            <th>Unit Price</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model.Products)
+        {
+            <tr>
+                <td>@product.ProductName</td>
+                <td>@product.CategoryName</td>
+                <td>@product.UnitsInStock</td>
+                <td>@product.UnitPrice?.ToString("C")</td>
+                <td>
+                    <a asp-page="Edit" asp-route-id="@product.ProductId" class="btn btn-warning btn-sm">Edit</a>
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@product.ProductId" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="productToast" class="toast bg-success text-white" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Product Update</strong>
+            <small>Just now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            A product has been updated successfully!
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/productHub")
+        .build();
+
+    connection.start().then(() => console.log("Connected to ProductHub!")).catch(err => console.error(err));
+
+    connection.on("ReceiveProductUpdate", function () {
+        location.reload(true);
+    });
+
+    connection.on("ReceiveNotication", function (message) {
+        let toastBody = document.querySelector("#productToast .toast-body");
+        toastBody.textContent = message;
+        let toast = new bootstrap.Toast(document.getElementById('productToast'));
+        toast.show();
+    });
+
+    // function refreshProductTable() {
+    //     fetch(window.location.href)
+    //         .then(response => response.text())
+    //         .then(html => {
+    //             let parser = new DOMParser();
+    //             let doc = parser.parseFromString(html, "text/html");
+    //             let newTableBody = doc.querySelector("table tbody").innerHTML;
+    //             document.querySelector("table tbody").innerHTML = newTableBody;
+    //         })
+    //         .catch(error => console.error("Error updating table:", error));
+    // }
+</script>

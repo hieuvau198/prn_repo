@@ -1,0 +1,26 @@
+﻿@page
+@model Web.Pages.auth.LoginModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<h2>Login</h2>
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-danger">@Model.Message</div>
+}
+
+<form method="post">
+    <div class="mb-3">
+        <label asp-for="AccountModel.EmailAddress" class="form-label">Email</label>
+        <input asp-for="AccountModel.EmailAddress" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="AccountModel.MemberPassword" class="form-label">Password</label>
+        <input asp-for="AccountModel.MemberPassword" type="password" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+</form>
