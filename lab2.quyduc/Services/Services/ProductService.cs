@@ -45,9 +45,7 @@ namespace Services.Services
             await _unitOfWork.Products.AddAsync(product);
             await _unitOfWork.SaveChangesAsync();
 
-            // 🔔 Notify clients that a new product was added
             await _productHub.Clients.All.SendAsync("ReceiveProductUpdate");
-            await _productHub.Clients.All.SendAsync("ReceiveNotication", $"{model.ProductName} was added!");
         }
 
         public async Task UpdateAsync(ProductModel model)
@@ -63,10 +61,8 @@ namespace Services.Services
             await _unitOfWork.Products.UpdateAsync(product);
             await _unitOfWork.SaveChangesAsync();
 
-            // 🔔 Notify clients that a product was updated
             await _productHub.Clients.All.SendAsync("ReceiveProductUpdate");
-            await Task.Delay(300);
-            await _productHub.Clients.All.SendAsync("ReceiveNotication", $"{model.ProductName} was updated!");
+            
 
         }
 
@@ -79,9 +75,7 @@ namespace Services.Services
             await _unitOfWork.SaveChangesAsync();
 
 
-            // 🔔 Notify clients that a product was deleted
             await _productHub.Clients.All.SendAsync("ReceiveProductUpdate");
-            await _productHub.Clients.All.SendAsync("ReceiveNotication", $"{product.ProductName} was deleted!");
 
         }
 

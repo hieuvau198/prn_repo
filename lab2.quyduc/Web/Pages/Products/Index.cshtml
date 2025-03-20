@@ -57,28 +57,9 @@
         .withUrl("/productHub")
         .build();
 
-    connection.start().then(() => console.log("Connected to ProductHub!")).catch(err => console.error(err));
+    connection.start();
 
     connection.on("ReceiveProductUpdate", function () {
         location.reload(true);
     });
-
-    connection.on("ReceiveNotication", function (message) {
-        let toastBody = document.querySelector("#productToast .toast-body");
-        toastBody.textContent = message;
-        let toast = new bootstrap.Toast(document.getElementById('productToast'));
-        toast.show();
-    });
-
-    // function refreshProductTable() {
-    //     fetch(window.location.href)
-    //         .then(response => response.text())
-    //         .then(html => {
-    //             let parser = new DOMParser();
-    //             let doc = parser.parseFromString(html, "text/html");
-    //             let newTableBody = doc.querySelector("table tbody").innerHTML;
-    //             document.querySelector("table tbody").innerHTML = newTableBody;
-    //         })
-    //         .catch(error => console.error("Error updating table:", error));
-    // }
 </script>
