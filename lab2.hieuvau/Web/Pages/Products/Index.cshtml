@@ -4,9 +4,65 @@
     ViewData["Title"] = "Products List";
 }
 
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @Model.Message
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <h2>Products</h2>
 
 <a asp-page="Create" class="btn btn-primary mb-3">Create New Product</a>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-2">
+        <label class="form-label">Search By</label>
+        <select class="form-select" asp-for="SearchBy">
+            <option value="ProductName">Product Name</option>
+            <option value="CategoryName">Category Name</option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Keyword</label>
+        <input class="form-control" asp-for="SearchTerm" placeholder="Enter keyword..." />
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Stock Below</label>
+        <select asp-for="StockBelow" class="form-select">
+            <option value="">-- Any --</option>
+            <option value="50">Below 50</option>
+            <option value="100">Below 100</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Price Above</label>
+        <select asp-for="PriceAbove" class="form-select">
+            <option value="">-- Any --</option>
+            <option value="30">Above $30</option>
+            <option value="60">Above $60</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Category</label>
+        <select asp-for="FilterCategoryId" asp-items="Model.Categories" class="form-select">
+            <option value="">-- All Categories --</option>
+        </select>
+    </div>
+
+    <div class="col-md-auto align-self-end">
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </div>
+
+    <div class="col-md-auto align-self-end">
+        <a asp-page="./Index" class="btn btn-secondary">Reset</a>
+    </div>
+</form>
+
 
 <table class="table table-bordered">
     <thead>
@@ -28,9 +84,12 @@
                 <td>@product.UnitPrice?.ToString("C")</td>
                 <td>
                     <a asp-page="Edit" asp-route-id="@product.ProductId" class="btn btn-warning btn-sm">Edit</a>
-                    <form method="post" asp-page-handler="Delete" asp-route-id="@product.ProductId" style="display:inline;">
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</button>
-                    </form>
+                    @if (Model.MemberRole == "1")
+                    {
+                        <form method="post" asp-page-handler="Delete" asp-route-id="@product.ProductId" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</button>
+                        </form>
+                    }
                 </td>
             </tr>
         }

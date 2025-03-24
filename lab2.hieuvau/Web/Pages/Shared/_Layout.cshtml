@@ -18,13 +18,17 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1 ">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
+                        @if (Context.Session.GetString("MemberId") != null)
+                        {
+                            <form method="get" asp-page="/Logout/Index" class="d-flex">
+                                <button type="submit" class="btn btn-outline-danger align-self-end">Logout</button>
+                            </form>
+                        }
+
                     </ul>
                 </div>
             </div>

@@ -27,6 +27,18 @@ namespace Web.Pages.Products
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
+            var memberRole = HttpContext.Session.GetString("MemberRole");
+            if (memberRole == null)
+            {
+                HttpContext.Session.SetString("Message", "Please Sing-in First");
+                return RedirectToPage("../Index");
+            }
+            else if (memberRole != "1")
+            {
+                HttpContext.Session.SetString("Message", "You do not have permission for this feature");
+                return RedirectToPage("./Index");
+            }
+
             Product = await _productService.GetByIdAsync(id);
             if (Product == null) return NotFound();
 

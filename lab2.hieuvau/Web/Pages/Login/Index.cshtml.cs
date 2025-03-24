@@ -1,25 +1,30 @@
-using Repositories.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Services.BusinessModels;
 using Services.Interfaces;
 
-namespace Web.Pages.auth
+namespace Web.Pages.Login
 {
-    public class LoginModel : PageModel
+    public class IndexModel : PageModel
     {
         private readonly IAccountService _accountService;
 
-        public LoginModel(IAccountService accountService)
+        public IndexModel(IAccountService accountService)
         {
             _accountService = accountService;
         }
 
         [BindProperty] public AccountModel AccountModel { get; set; }
         public string Message { get; set; }
-        public void OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
+            string memberId = HttpContext.Session.GetString("MemberId");
+            if (!string.IsNullOrEmpty(memberId))
+            {
+                return RedirectToPage("../Products/Index");
+            }
 
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -31,9 +36,18 @@ namespace Web.Pages.auth
                 Message = "Wrong username or password";
                 return Page();
             }
+            else if (account.MemberRole == 1)
+            {
+                Message = "Hi, " +  "Manager " + account.FullName;
+            }
+            else if (account.MemberRole == 2)
+            {
+                Message = "Hi, " + "Staff " + account.FullName;
+            }
             else
             {
-                Message = "Hi, " + account.FullName;
+                Message = "You don't have permission to access";
+                return Page();
             }
 
             HttpContext.Session.SetString("MemberId", account.MemberId);
@@ -44,10 +58,9 @@ namespace Web.Pages.auth
 
             HttpContext.Session.SetString("Message", Message);
 
-            return RedirectToPage("../Index");
+            return RedirectToPage("../Products/Index");
         }
 
 
     }
 }
-

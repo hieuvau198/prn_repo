@@ -18,7 +18,7 @@ namespace Web.Pages
             string memberId = HttpContext.Session.GetString("MemberId");
             if (string.IsNullOrEmpty(memberId))
             {
-                return RedirectToPage("/auth/login");
+                return RedirectToPage("/Login/Index");
             }
 
             Message = HttpContext.Session.GetString("Message") ?? "Get Message failed";

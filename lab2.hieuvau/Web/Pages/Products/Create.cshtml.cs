@@ -22,10 +22,24 @@ namespace Web.Pages.Products
 
         public List<SelectListItem> Categories { get; set; } = new();
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
+            var memberRole = HttpContext.Session.GetString("MemberRole");
+            if (memberRole == null)
+            {
+                HttpContext.Session.SetString("Message", "Please Sing-in First");
+                return RedirectToPage("../Index");
+            }
+            else if (memberRole != "1")
+            {
+                HttpContext.Session.SetString("Message", "You do not have permission for this feature");
+                return RedirectToPage("./Index");
+            }
+
             var categories = await _categoryService.GetAllAsync();
             Categories = categories.Select(c => new SelectListItem { Value = c.CategoryId.ToString(), Text = c.CategoryName }).ToList();
+
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
