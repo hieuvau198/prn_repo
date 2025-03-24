@@ -10,8 +10,11 @@ namespace Repositories.Interfaces
     public interface IGenericRepository<T> where T : class
     {
         Task<IEnumerable<T>> GetAsync(
-            Expression<Func<T, bool>> predicate = null,
-            params Expression<Func<T, object>>[] includes);
+
+        Expression<Func<T, bool>> predicate = null,
+        Expression<Func<T, object>>[] includes = null,
+        int? pageNumber = null,
+        int? pageSize = null);
 
         Task<T> GetByIdAsync(object id, params Expression<Func<T, object>>[] includes);
 
@@ -25,4 +28,5 @@ namespace Repositories.Interfaces
 
         Task DeleteAsync(object id);
     }
+    
 }

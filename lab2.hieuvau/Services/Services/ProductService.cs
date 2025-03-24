@@ -4,8 +4,10 @@ using Repositories.Interfaces;
 using Services.BusinessModels;
 using Services.Hubs;
 using Services.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace Services.Services
@@ -13,7 +15,7 @@ namespace Services.Services
     public class ProductService : IProductService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IHubContext<ProductHub> _productHub; // Inject SignalR Hub
+        private readonly IHubContext<ProductHub> _productHub;
 
         public ProductService(IUnitOfWork unitOfWork, IHubContext<ProductHub> productHub)
         {
@@ -23,19 +25,29 @@ namespace Services.Services
 
         public async Task<ProductModel?> GetByIdAsync(int productId)
         {
-            Product? product = await _unitOfWork.Products.GetByIdAsync(productId, p => p.Category);
+            var includes = new Expression<Func<Product, object>>[] { p => p.Category };
+            var product = await _unitOfWork.Products.GetByIdAsync(productId, includes);
             return product != null ? MapToModel(product) : null;
         }
 
         public async Task<IEnumerable<ProductModel>> GetByCategoryAsync(int categoryId)
         {
-            var products = await _unitOfWork.Products.GetAsync(p => p.CategoryId == categoryId, p => p.Category);
+            var includes = new Expression<Func<Product, object>>[] { p => p.Category };
+            var products = await _unitOfWork.Products.GetAsync(p => p.CategoryId == categoryId, includes);
             return products.Select(MapToModel);
         }
 
         public async Task<IEnumerable<ProductModel>> GetAllAsync()
         {
-            var products = await _unitOfWork.Products.GetAsync(null, p => p.Category);
+            var includes = new Expression<Func<Product, object>>[] { p => p.Category };
+            var products = await _unitOfWork.Products.GetAsync(null, includes);
+            return products.Select(MapToModel);
+        }
+
+        public async Task<IEnumerable<ProductModel>> GetPagedAsync(int pageNumber = 1, int pageSize = 10)
+        {
+            var includes = new Expression<Func<Product, object>>[] { p => p.Category };
+            var products = await _unitOfWork.Products.GetAsync(null, includes, pageNumber, pageSize);
             return products.Select(MapToModel);
         }
 
@@ -45,44 +57,38 @@ namespace Services.Services
             await _unitOfWork.Products.AddAsync(product);
             await _unitOfWork.SaveChangesAsync();
 
-            // 🔔 Notify clients that a new product was added
             await _productHub.Clients.All.SendAsync("ReceiveProductUpdate");
             await _productHub.Clients.All.SendAsync("ReceiveNotication", $"{model.ProductName} was added!");
         }
 
         public async Task UpdateAsync(ProductModel model)
         {
-            var product = await _unitOfWork.Products.GetByIdAsync(model.ProductId);
-            if (product == null) return;
+            var existing = await _unitOfWork.Products.GetByIdAsync(model.ProductId);
+            if (existing == null) return;
 
-            product.ProductName = model.ProductName;
-            product.CategoryId = model.CategoryId;
-            product.UnitsInStock = model.UnitsInStock;
-            product.UnitPrice = model.UnitPrice;
+            existing.ProductName = model.ProductName;
+            existing.CategoryId = model.CategoryId;
+            existing.UnitsInStock = model.UnitsInStock;
+            existing.UnitPrice = model.UnitPrice;
 
-            await _unitOfWork.Products.UpdateAsync(product);
+            await _unitOfWork.Products.UpdateAsync(existing);
             await _unitOfWork.SaveChangesAsync();
 
-            // 🔔 Notify clients that a product was updated
             await _productHub.Clients.All.SendAsync("ReceiveProductUpdate");
             await Task.Delay(300);
             await _productHub.Clients.All.SendAsync("ReceiveNotication", $"{model.ProductName} was updated!");
-
         }
 
         public async Task DeleteAsync(int productId)
         {
-            var product = await _unitOfWork.Products.GetByIdAsync(productId);
-            if (product == null) return;
+            var existing = await _unitOfWork.Products.GetByIdAsync(productId);
+            if (existing == null) return;
 
             await _unitOfWork.Products.DeleteAsync(productId);
             await _unitOfWork.SaveChangesAsync();
 
-
-            // 🔔 Notify clients that a product was deleted
             await _productHub.Clients.All.SendAsync("ReceiveProductUpdate");
-            await _productHub.Clients.All.SendAsync("ReceiveNotication", $"{product.ProductName} was deleted!");
-
+            await _productHub.Clients.All.SendAsync("ReceiveNotication", $"{existing.ProductName} was deleted!");
         }
 
         private static ProductModel MapToModel(Product entity)

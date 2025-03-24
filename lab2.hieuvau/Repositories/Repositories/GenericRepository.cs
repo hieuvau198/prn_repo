@@ -21,12 +21,13 @@ namespace Repositories.Repositories
         }
 
         public async Task<IEnumerable<T>> GetAsync(
-            Expression<Func<T, bool>> predicate = null,
-            params Expression<Func<T, object>>[] includes)
+    Expression<Func<T, bool>> predicate = null,
+    Expression<Func<T, object>>[] includes = null,
+    int? pageNumber = null,
+    int? pageSize = null)
         {
             IQueryable<T> query = _dbSet;
 
-            // Apply Includes if provided
             if (includes != null && includes.Length > 0)
             {
                 foreach (var include in includes)
@@ -35,14 +36,23 @@ namespace Repositories.Repositories
                 }
             }
 
-            // Apply Predicate if provided
             if (predicate != null)
             {
                 query = query.Where(predicate);
             }
 
+            if (pageNumber.HasValue || pageSize.HasValue)
+            {
+                int page = pageNumber ?? 1;
+                int size = pageSize ?? 10;
+
+                query = query.Skip((page - 1) * size).Take(size);
+            }
+
             return await query.ToListAsync();
         }
+
+
 
         public async Task<T> GetByIdAsync(object id, params Expression<Func<T, object>>[] includes)
         {
