@@ -21,10 +21,10 @@ namespace Repositories.Repositories
         }
 
         public async Task<IEnumerable<T>> GetAsync(
-    Expression<Func<T, bool>> predicate = null,
-    Expression<Func<T, object>>[] includes = null,
-    int? pageNumber = null,
-    int? pageSize = null)
+            Expression<Func<T, bool>> predicate = null,
+            Expression<Func<T, object>>[] includes = null,
+            int? pageNumber = null,
+            int? pageSize = null)
         {
             IQueryable<T> query = _dbSet;
 
@@ -122,4 +122,5 @@ namespace Repositories.Repositories
             }
         }
     }
+
 }
