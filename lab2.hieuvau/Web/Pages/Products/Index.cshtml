@@ -14,20 +14,21 @@
 
 <h2>Products</h2>
 
-<a asp-page="Create" class="btn btn-primary mb-3">Create New Product</a>
+@if (Model.MemberRole == "1")
+{
+    <a asp-page="Create" class="btn btn-primary mb-3">Create New Product</a>
+}
 
 <form method="get" class="row g-2 mb-3">
-    <div class="col-md-2">
-        <label class="form-label">Search By</label>
-        <select class="form-select" asp-for="SearchBy">
-            <option value="ProductName">Product Name</option>
-            <option value="CategoryName">Category Name</option>
-        </select>
-    </div>
-
-    <div class="col-md-3">
-        <label class="form-label">Keyword</label>
-        <input class="form-control" asp-for="SearchTerm" placeholder="Enter keyword..." />
+    <div class="col-md-4">
+        <label class="form-label">Search (Product or Category)</label>
+        <div class="input-group">
+            <input class="form-control" asp-for="SearchTerm" placeholder="Enter keyword..." />
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i> Search
+            </button>
+        </div>
+        <small class="text-muted">Searches both product names and categories</small>
     </div>
 
     <div class="col-md-2">
@@ -47,6 +48,7 @@
             <option value="60">Above $60</option>
         </select>
     </div>
+
     <div class="col-md-3">
         <label class="form-label">Category</label>
         <select asp-for="FilterCategoryId" asp-items="Model.Categories" class="form-select">
@@ -55,65 +57,81 @@
     </div>
 
     <div class="col-md-auto align-self-end">
-        <button type="submit" class="btn btn-primary">Filter</button>
-    </div>
-
-    <div class="col-md-auto align-self-end">
+        <button type="submit" class="btn btn-primary">Apply Filters</button>
         <a asp-page="./Index" class="btn btn-secondary">Reset</a>
     </div>
 </form>
 
-
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Product Name</th>
-            <th>Category</th>
-            <th>Units In Stock</th>
-            <th>Unit Price</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var product in Model.Products)
-        {
+@if (!Model.Products.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No products match your search criteria. Try different keywords or reset filters.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
             <tr>
-                <td>@product.ProductName</td>
-                <td>@product.CategoryName</td>
-                <td>@product.UnitsInStock</td>
-                <td>@product.UnitPrice?.ToString("C")</td>
-                <td>
-                    <a asp-page="Edit" asp-route-id="@product.ProductId" class="btn btn-warning btn-sm">Edit</a>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Units In Stock</th>
+                <th>Unit Price</th>
+                @if (Model.MemberRole == "1")
+                {
+                    <th>Actions</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in Model.Products)
+            {
+                <tr>
+                    <td>@product.ProductName</td>
+                    <td>@product.CategoryName</td>
+                    <td>@product.UnitsInStock</td>
+                    <td>@product.UnitPrice?.ToString("C")</td>
                     @if (Model.MemberRole == "1")
                     {
-                        <form method="post" asp-page-handler="Delete" asp-route-id="@product.ProductId" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?');">Delete</button>
-                        </form>
+                        <td>
+                            <a asp-page="Edit" asp-route-id="@product.ProductId" class="btn btn-warning btn-sm">Edit</a>
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@product.ProductId" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this product?');">Delete</button>
+                            </form>
+                        </td>
                     }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-<!-- Pagination controls with updated property names -->
-<div class="d-flex justify-content-between align-items-center mt-4">
-    <a class="btn btn-outline-secondary @(Model.PageNumber <= 1 ? "disabled" : "")"
-       asp-page="./Index"
-       asp-route-pageNumber="@(Model.PageNumber > 1 ? Model.PageNumber - 1 : 1)"
-       asp-route-pageSize="@Model.PageSize">
-        Previous
-    </a>
+    <!-- Pagination controls -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <a class="btn btn-outline-secondary @(Model.PageNumber <= 1 ? "disabled" : "")"
+           asp-page="./Index"
+           asp-route-pageNumber="@(Model.PageNumber > 1 ? Model.PageNumber - 1 : 1)"
+           asp-route-pageSize="@Model.PageSize"
+           asp-route-searchTerm="@Model.SearchTerm"
+           asp-route-stockBelow="@Model.StockBelow"
+           asp-route-priceAbove="@Model.PriceAbove"
+           asp-route-filterCategoryId="@Model.FilterCategoryId">
+            Previous
+        </a>
 
-    <span>Page @Model.PageNumber of @Model.TotalPages</span>
+        <span>Page @Model.PageNumber of @Math.Max(1, Model.TotalPages)</span>
 
-    <a class="btn btn-outline-secondary @(Model.PageNumber >= Model.TotalPages ? "disabled" : "")"
-       asp-page="./Index"
-       asp-route-pageNumber="@(Model.PageNumber < Model.TotalPages ? Model.PageNumber + 1 : Model.TotalPages)"
-       asp-route-pageSize="@Model.PageSize">
-        Next
-    </a>
-</div>
+        <a class="btn btn-outline-secondary @(Model.PageNumber >= Model.TotalPages ? "disabled" : "")"
+           asp-page="./Index"
+           asp-route-pageNumber="@(Model.PageNumber < Model.TotalPages ? Model.PageNumber + 1 : Model.TotalPages)"
+           asp-route-pageSize="@Model.PageSize"
+           asp-route-searchTerm="@Model.SearchTerm"
+           asp-route-stockBelow="@Model.StockBelow"
+           asp-route-priceAbove="@Model.PriceAbove"
+           asp-route-filterCategoryId="@Model.FilterCategoryId">
+            Next
+        </a>
+    </div>
+}
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="productToast" class="toast bg-success text-white" role="alert" aria-live="assertive" aria-atomic="true">
@@ -147,4 +165,17 @@
         toast.show();
     });
 
+    // Auto-submit form when certain filters change
+    document.addEventListener('DOMContentLoaded', function() {
+        const filters = ['StockBelow', 'PriceAbove', 'FilterCategoryId'];
+
+        filters.forEach(filter => {
+            const element = document.getElementById('Model_' + filter);
+            if (element) {
+                element.addEventListener('change', function() {
+                    document.querySelector('form').submit();
+                });
+            }
+        });
+    });
 </script>

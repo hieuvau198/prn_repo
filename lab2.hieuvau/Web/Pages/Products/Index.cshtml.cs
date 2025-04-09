@@ -15,7 +15,6 @@ namespace Web.Pages.Products
         private readonly IProductService _productService;
         private readonly ICategoryService _categoryService;
 
-
         public IndexModel(IProductService productService, ICategoryService categoryService)
         {
             _productService = productService;
@@ -25,10 +24,6 @@ namespace Web.Pages.Products
         public IEnumerable<ProductModel> Products { get; set; } = new List<ProductModel>();
 
         // Filter
-
-        [BindProperty(SupportsGet = true)]
-        public string SearchBy { get; set; } = "ProductName"; // default
-
         [BindProperty(SupportsGet = true)]
         public string SearchTerm { get; set; }
 
@@ -37,17 +32,15 @@ namespace Web.Pages.Products
 
         [BindProperty(SupportsGet = true)]
         public decimal? PriceAbove { get; set; }
+
         [BindProperty(SupportsGet = true)]
         public int? FilterCategoryId { get; set; }
 
         public List<SelectListItem> Categories { get; set; } = new();
 
-
-
-
         // Paging
         [BindProperty(SupportsGet = true)]
-        public int PageNumber { get; set; } = 1;  // Renamed from Page to PageNumber
+        public int PageNumber { get; set; } = 1;
 
         [BindProperty(SupportsGet = true)]
         public int PageSize { get; set; } = 5;
@@ -60,6 +53,12 @@ namespace Web.Pages.Products
 
         public async Task<IActionResult> OnGetAsync()
         {
+            string memberId = HttpContext.Session.GetString("MemberId");
+            if (string.IsNullOrEmpty(memberId))
+            {
+                return RedirectToPage("/Login/Index");
+            }
+
             var categoryList = await _categoryService.GetAllAsync();
             Categories = categoryList
                 .Select(c => new SelectListItem { Value = c.CategoryId.ToString(), Text = c.CategoryName })
@@ -71,17 +70,13 @@ namespace Web.Pages.Products
 
             var allProducts = await _productService.GetAllAsync();
 
-            // Filter by search
+            // Auto-search in both ProductName and CategoryName
             if (!string.IsNullOrEmpty(SearchTerm))
             {
-                if (SearchBy == "CategoryName")
-                {
-                    allProducts = allProducts.Where(p => p.CategoryName != null && p.CategoryName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase));
-                }
-                else
-                {
-                    allProducts = allProducts.Where(p => p.ProductName != null && p.ProductName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase));
-                }
+                allProducts = allProducts.Where(p =>
+                    (p.ProductName != null && p.ProductName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (p.CategoryName != null && p.CategoryName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
+                );
             }
 
             // Stock filter
@@ -95,11 +90,13 @@ namespace Web.Pages.Products
             {
                 allProducts = allProducts.Where(p => p.UnitPrice.HasValue && p.UnitPrice > PriceAbove.Value);
             }
+
             // Category filter
             if (FilterCategoryId.HasValue)
             {
                 allProducts = allProducts.Where(p => p.CategoryId == FilterCategoryId.Value);
             }
+
             // Order by ID descending
             var sorted = allProducts.OrderByDescending(p => p.ProductId).ToList();
 
@@ -110,13 +107,12 @@ namespace Web.Pages.Products
             return Page();
         }
 
-
         public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
             var memberRole = HttpContext.Session.GetString("MemberRole");
             if (memberRole == null)
             {
-                HttpContext.Session.SetString("Message", "Please Sing-in First");
+                HttpContext.Session.SetString("Message", "Please Sign-in First");
                 return RedirectToPage();
             }
             else if (memberRole != "1")
@@ -126,7 +122,7 @@ namespace Web.Pages.Products
             }
 
             await _productService.DeleteAsync(id);
-            return RedirectToPage(new { pageNumber = PageNumber, pageSize = PageSize });  // Use pageNumber instead of page
+            return RedirectToPage(new { pageNumber = PageNumber, pageSize = PageSize });
         }
     }
 }
